@@ -8,10 +8,15 @@ jobs:
       - uses: actions/setup-java@v4
         with: { distribution: temurin, java-version: 21 }
       - run: |
-          mkdir t && unzip -q template.zip -d t
+          ls
+          for z in *.zip; do
+            if unzip -l "$z" | grep -q gradlew; then T="$z"; else S="$z"; fi
+          done
+          echo "template=$T src=$S"
+          mkdir t && unzip -q "$T" -d t
           D=$(dirname "$(find t -name gradlew | head -1)")
           rm -rf "$D/src"
-          unzip -q FoldUtil-src.zip -d "$D"
+          unzip -q "$S" -d "$D"
           cd "$D"
           chmod +x gradlew
           ./gradlew build
