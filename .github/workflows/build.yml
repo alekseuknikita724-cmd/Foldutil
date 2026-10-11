@@ -1,0 +1,21 @@
+name: build
+on: [workflow_dispatch, push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 21 }
+      - run: |
+          mkdir t && unzip -q template.zip -d t
+          D=$(dirname "$(find t -name gradlew | head -1)")
+          rm -rf "$D/src"
+          unzip -q FoldUtil-src.zip -d "$D"
+          cd "$D"
+          chmod +x gradlew
+          ./gradlew build
+          mkdir -p "$GITHUB_WORKSPACE/out"
+          cp build/libs/*.jar "$GITHUB_WORKSPACE/out/"
+      - uses: actions/upload-artifact@v4
+        with: { name: mod, path: out/*.jar }
